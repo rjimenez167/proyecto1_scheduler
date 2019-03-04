@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "time.h": "c",
+        "context_list.h": "c",
+        "stdlib.h": "c",
+        "file_parser.h": "c"
+    }
+}

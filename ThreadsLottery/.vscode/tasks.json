@@ -1,0 +1,36 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build & debug file",
+      "type": "shell",
+      "command": "gcc",
+      "args": [
+        "-g",
+        "-o",
+        "${fileBasenameNoExtension}",
+        "threads/src/context_list.c",
+        "${file}"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "build & run file",
+      "type": "shell",
+      "command": "gcc",
+      "args": [
+        "-o",
+        "${fileBasenameNoExtension}",
+        "threads/src/context_list.c",
+        "${file}"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
+}
