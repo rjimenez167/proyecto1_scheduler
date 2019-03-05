@@ -7,9 +7,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <setjmp.h>
+#include <stdbool.h>
 
 struct node
 {
+    bool completed;
     int thread_id;
     int ticket_count;
     int work_amount;

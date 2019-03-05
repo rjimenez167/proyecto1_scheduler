@@ -18,7 +18,7 @@
 #include <signal.h>
 #include <unistd.h>
 
-#include "threads/include/context_list.h"
+#include "threads/context_list.h"
 
 //constant -> second (unit of time) definition in miliseconds
 #define SLEEP 5000
@@ -75,12 +75,10 @@ void switch_threads()
     sigsetjmp(current->env, 1);
 
     //set current to next
-    if (current->next != NULL)
-    {
+    if (current->next != NULL){
         current = current->next;
     }
-    else
-    {
+    else{
         current = head;
     }
 
@@ -97,13 +95,12 @@ void do_work()
 
     double pi = 0;
     int denom = 1;
-    int signo = 1;
+    int sign = 1;
 
-    for (int i = 1; i <= terms; i++)
-    {
-        pi += signo * 4.0 / denom;
+    for (int i = 1; i <= terms; i++){
+        pi += sign * 4.0 / denom;
         denom += 2;
-        signo *= -1;
+        sign *= -1;
 
         usleep(SLEEP);
     }
@@ -129,11 +126,13 @@ void setup(context_list *ctx_list)
         char *field = NULL;
         char *name = NULL;
 
+        // rows value id|count|work|quantum|units
         n_node->thread_id = atoi(strsep(&tmp, "|"));
         n_node->ticket_count = atoi(strsep(&tmp, "|"));
         n_node->work_amount = atoi(strsep(&tmp, "|"));
         n_node->quantum = atoi(strsep(&tmp, "|"));
         n_node->work_units = atoi(strsep(&tmp, "|"));
+        n_node->completed = false;
         n_node->stack = malloc(STACK_SIZE * sizeof(char));
 
         address_t sp, pc;
