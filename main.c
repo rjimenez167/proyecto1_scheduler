@@ -32,6 +32,7 @@
 
 //current thread context
 node *head, *current;
+char op_mode; // it´s global because it's going to be used by other funtions
 
 #ifdef __x86_64__
 /* code for 64 bit Intel arch */
@@ -106,8 +107,7 @@ void doWork(){
         printf("switching\n");
         switchThreads();
     }else{
-        //TODO 
-        //and then what? How can we control Segmentation fault (core dumped)?
+        exit(EXIT_SUCCESS); // TODO REMOVE THIS WHEN THE GUI IS USED
     }
 }
 
@@ -150,6 +150,9 @@ void setup(context_list *ctx_list){
     printf("Setup is finished\n"); 
 }
 
+void noExpropiation(context_list*);
+void expropiation(context_list*);
+
 int main(int argc, char **argv){
     srand ( time(NULL) );
     char usage_msj[] = "Usage: ./lottery < e | n >\n %s";
@@ -159,22 +162,41 @@ int main(int argc, char **argv){
         return 0;
     }
 
-    char op_mode = *argv[1];
+    op_mode= *argv[1];
 
-    if (!(op_mode == 101 || op_mode == 110)){
+    if (!(op_mode == 101 || op_mode == 110)){ //E | N
         fprintf(stderr, usage_msj, "Wrong values!\n");
         return 0;
     }
-
+    
     context_list *ctx_list = context_list_create();
-
     setup(ctx_list);
+    
+    switch (op_mode){
+        case 'e':{
+            expropiation(ctx_list);
+            break;
+        }
+        case 'n':{
+            noExpropiation(ctx_list);
+            break;
+        }
+    }
+    context_list_empty(ctx_list);
+   
+    return EXIT_SUCCESS;
+}
 
+void noExpropiation(context_list *ctx_list){
     head = ctx_list->head;
     current = ctx_list->head;
 
     printf("The total tickets is %d\n", getTotalAvailableTickets(head));
     current = getWinnerTicket(head);
+    
     siglongjmp(current->env, 1);
-    return 0;
+}
+
+void expropiation(context_list *ctx_list){
+    
 }
