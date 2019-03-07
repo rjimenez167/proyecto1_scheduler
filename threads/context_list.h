@@ -1,3 +1,10 @@
+/*
+*   ITCR -- SOA -- Proyecto 1.
+*   Loteria de threads.
+*   Acuna-Alfaro-Jimenez-Jimenez-Morera.
+*
+*   Marzo 2019 
+*/
 //POSIX -- allows for using the sigjmp_buf structure
 //#define _POSIX_SOURCE 
 
@@ -9,8 +16,7 @@
 #include <setjmp.h>
 #include <stdbool.h>
 
-struct node
-{
+struct node{
     bool completed;
     int thread_id;
     int ticket_count;
@@ -27,8 +33,7 @@ struct node
 };
 typedef struct node node;
 
-struct context_list
-{
+struct context_list{
     node *head;
     node *tail;
     unsigned int count;

@@ -1,3 +1,10 @@
+/*
+*   ITCR -- SOA -- Proyecto 1.
+*   Loteria de threads.
+*   Acuna-Alfaro-Jimenez-Jimenez-Morera.
+*
+*   Marzo 2019 
+*/
 #include <stdlib.h>
 #include "context_list.h"
  

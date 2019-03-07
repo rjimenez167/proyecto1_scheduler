@@ -17,8 +17,11 @@
 #include <setjmp.h>
 #include <signal.h>
 #include <unistd.h>
+#include<time.h> 
 
 #include "threads/context_list.h"
+#include "lottery/lotteryManager.h"
+
 
 //constant -> second (unit of time) definition in miliseconds
 #define SLEEP 5000
@@ -39,8 +42,7 @@ typedef unsigned long address_t;
 
 /* A translation is required when using an address of a variable.
    Use this as a black box in your code. */
-address_t translate_address(address_t addr)
-{
+address_t translate_address(address_t addr){
     address_t ret;
     asm volatile("xor    %%fs:0x30,%0\n"
                  "rol    $0x11,%0\n"
@@ -58,8 +60,7 @@ typedef unsigned int address_t;
 
 /* A translation is required when using an address of a variable.
    Use this as a black box in your code. */
-address_t translate_address(address_t addr)
-{
+address_t translate_address(address_t addr){
     address_t ret;
     asm volatile("xor    %%gs:0x18,%0\n"
                  "rol    $0x9,%0\n"
@@ -69,29 +70,22 @@ address_t translate_address(address_t addr)
 }
 #endif
 
-void switch_threads()
-{
+void switchThreads(){
     //save env
     sigsetjmp(current->env, 1);
-
-    //set current to next
-    if (current->next != NULL){
-        current = current->next;
+    
+    current = getWinnerTicket(head);
+    if(current != NULL){
+        siglongjmp(current->env, 1);
+    }else{
+        printf("we have finished all");
     }
-    else{
-        current = head;
-    }
-
-    siglongjmp(current->env, 1);
 }
 
-void do_work()
-{
+void doWork(){
     printf("thread with id: %d -- running and working on %d units!\n", current->thread_id, current->work_units);
 
-    int terms;
-
-    terms = current->work_units * MIN_WORK_UNIT;
+    int terms = current->work_units * MIN_WORK_UNIT;
 
     double pi = 0;
     int denom = 1;
@@ -106,17 +100,23 @@ void do_work()
     }
     
     printf("%d terms processed -- Pi = %.32f\n", terms, pi);
-    printf("switching\n");
-    switch_threads();
+    //finish thread
+    completeWork(current);
+    if(getTotalAvailableTickets(head) > 0){
+        printf("switching\n");
+        switchThreads();
+    }else{
+        //TODO 
+        //and then what? How can we control Segmentation fault (core dumped)?
+    }
 }
 
-void setup(context_list *ctx_list)
-{
+void setup(context_list *ctx_list){
+    printf("Setup is started\n"); 
     //Read data from the source csv.
     FILE *file = fopen("threads_setup.csv", "r");
     char line[1024];
-    while (fgets(line, 1024, file))
-    {
+    while (fgets(line, 1024, file)){
         //char *stack = malloc(STACK_SIZE * sizeof(char));
         node *n_node;
         n_node = malloc(sizeof(node));
@@ -137,7 +137,7 @@ void setup(context_list *ctx_list)
 
         address_t sp, pc;
         sp = (address_t)n_node->stack + STACK_SIZE - sizeof(address_t);
-        pc = (address_t)do_work;
+        pc = (address_t)doWork;
 
         sigsetjmp(n_node->env, 1);
         (n_node->env->__jmpbuf)[JB_SP] = translate_address(sp);
@@ -147,22 +147,21 @@ void setup(context_list *ctx_list)
         context_list_add_tail(ctx_list, n_node);
     }
     fclose(file);
+    printf("Setup is finished\n"); 
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv){
+    srand ( time(NULL) );
     char usage_msj[] = "Usage: ./lottery < e | n >\n %s";
 
-    if (argc < 2)
-    {
+    if (argc < 2){
         fprintf(stderr, usage_msj, "Parameter count!\n");
         return 0;
     }
 
     char op_mode = *argv[1];
 
-    if (!(op_mode == 101 || op_mode == 110))
-    {
+    if (!(op_mode == 101 || op_mode == 110)){
         fprintf(stderr, usage_msj, "Wrong values!\n");
         return 0;
     }
@@ -174,6 +173,8 @@ int main(int argc, char **argv)
     head = ctx_list->head;
     current = ctx_list->head;
 
-    siglongjmp(head->env, 1);
+    printf("The total tickets is %d\n", getTotalAvailableTickets(head));
+    current = getWinnerTicket(head);
+    siglongjmp(current->env, 1);
     return 0;
 }

@@ -1,0 +1,9 @@
+called: /usr/bin/gcc
+	/home/nosfe/Documents/git/proyecto1_scheduler
+	gcc
+	-o
+	build/test
+	test.c
+	threads_gui.c
+	-I.
+

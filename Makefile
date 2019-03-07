@@ -6,4 +6,4 @@ create_build:
 	cp threads_setup.csv build/threads_setup.csv
 
 test:
-	gcc -o  build/main main.c threads/context_list.c
+	gcc -o  build/main main.c threads/context_list.c lottery/lotteryManager.c
