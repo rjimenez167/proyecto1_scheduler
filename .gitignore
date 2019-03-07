@@ -1,3 +1,6 @@
+#exclude netbeans folder
+nbproject/
+
 #exclude executables
 build/
 

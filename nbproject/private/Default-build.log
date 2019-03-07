@@ -1,9 +1,0 @@
-mkdir -p build
-gcc -o build/test test.c threads_gui.c `pkg-config --cflags gtk+-2.0 --libs` -I.
-/bin/sh: 1: pkg-config: not found
-gcc: error: test.c: No such file or directory
-gcc: error: threads_gui.c: No such file or directory
-gcc: fatal error: no input files
-compilation terminated.
-Makefile:8: recipe for target 'test' failed
-make: *** [test] Error 1
